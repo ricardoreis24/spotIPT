@@ -43,7 +43,6 @@ document.addEventListener('DOMContentLoaded', function main(e) {
                     }
                 });
 
-
         }
         else {  // Erro
             console.error(xhr.responseText);
@@ -92,29 +91,57 @@ function listaConteudo(cds) {
         container.appendChild(imagem);
 
         //separação
-        var frase = document.createElement('p');
-        frase.textContent = '--- Faixas ---';
+        var frase = document.createElement('h3');
+        frase.textContent = '---------------------';
         container.appendChild(frase);
 
-        //adicionar o search das faixas
-        var faixaSearch = document.createElement('INPUT');
-        faixaSearch.setAttribute('type', 'search');
-        container.appendChild(faixaSearch);
+        listaFaixa(cds);
 
-        //buscar o conteudo da faixa
-        var faixas = cd.querySelectorAll('faixa');
-        //ciclo FOR para mostrar as faixas do Album
-        for (var y = 0; y < faixas.length; y++) {
-            //Saber a posição da faixa no array
-            var faixa = faixas[y];
-            //O ref esta no XML como atributo do nome da musica dentro do album
-            var ref = faixa.getAttribute('ref');
-            //criar a lista
-            var li = document.createElement('li');
+        var inputFaixa = document.getElementById("pesqFaixa");
+        inputFaixa.addEventListener('input',function (evt) {
+            //buscar o conteudo do text box
+            var filtros = inputFaixa.value;
+            //limpar a tela
+            container.removeChild(li);
 
-            li.textContent = ref;
-            container.appendChild(li);
+            if (filtros.length === 0) {
+                //desenha tudo
+                listaFaixa(cds);
+            } else {
+                //filtragem
+                var faixasFiltradas = xml.querySelectorAll('cd[faixa*="' + filtros + '"]');
+                console.log(faixasFiltradas);
+                listaFaixa(faixasFiltradas);
+            }
+        });
+
+
+        //Função que desenha as faixas
+        function listaFaixa(cds){
+            //adicionar o search das faixas
+            var faixaSearch = document.createElement('INPUT');
+            faixaSearch.setAttribute('type', 'search');
+            faixaSearch.setAttribute('placeholder', 'Search..');
+            faixaSearch.setAttribute('id', 'pesqFaixa');
+            container.appendChild(faixaSearch);
+
+            //buscar o conteudo da faixa
+            var faixas = cd.querySelectorAll('faixa');
+            //ciclo FOR para mostrar as faixas do Album
+            for (var y = 0; y < faixas.length; y++) {
+                //Saber a posição da faixa no array
+                var faixa = faixas[y];
+                //O ref esta no XML como atributo do nome da musica dentro do album
+                var ref = faixa.getAttribute('ref');
+                //criar a lista
+                var li = document.createElement('li');
+
+                li.textContent = ref;
+                container.appendChild(li);
+            }
+
         }
-
     }
 }
+
+
