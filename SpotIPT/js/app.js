@@ -56,92 +56,109 @@ document.addEventListener('DOMContentLoaded', function main(e) {
     };
 
     xhr.send();  // Enviar o pedido.
-});
-
-function listaConteudo(cds) {
-    var container = document.getElementById("container");
-
-    for (var i = 0; i < cds.length; i++) {
-        var cd = cds[i];
-
-        //Nome CD
-        var titulo = cd.getAttribute('titulo');
-        var h1 = document.createElement('h1');
-        h1.textContent = titulo;
-        container.appendChild(h1);
-
-        //autoria
-        var autoria = cd.getAttribute('autoria');
-        //para buscar o ano
-        var datas = cd.querySelector('data');
-        var data = datas.getAttribute('ano');
-
-        var p1 = document.createElement('p');
-        p1.textContent = 'by: ' + autoria + ', (' + data + ')';
-        container.appendChild(p1);
-
-        //para a imagem
-        var imagens = cd.querySelector('capa');
-        var capa = imagens.getAttribute('imagBig');
-        var imagem = document.createElement("IMG");
-        imagem.setAttribute("src", "/assets/images/" + capa);
-        imagem.setAttribute("width", "135");
-        imagem.setAttribute("height", "135");
-
-        container.appendChild(imagem);
-
-        //separação
-        var frase = document.createElement('h3');
-        frase.textContent = '---------------------';
-        container.appendChild(frase);
-
-        listaFaixa(cds);
-
-        var inputFaixa = document.getElementById("pesqFaixa");
-        inputFaixa.addEventListener('input',function (evt) {
-            //buscar o conteudo do text box
-            var filtros = inputFaixa.value;
-            //limpar a tela
-            container.removeChild(li);
-
-            if (filtros.length === 0) {
-                //desenha tudo
-                listaFaixa(cds);
-            } else {
-                //filtragem
-                var faixasFiltradas = xml.querySelectorAll('cd[faixa*="' + filtros + '"]');
-                console.log(faixasFiltradas);
-                listaFaixa(faixasFiltradas);
-            }
-        });
 
 
-        //Função que desenha as faixas
-        function listaFaixa(cds){
-            //adicionar o search das faixas
-            var faixaSearch = document.createElement('INPUT');
-            faixaSearch.setAttribute('type', 'search');
-            faixaSearch.setAttribute('placeholder', 'Search..');
-            faixaSearch.setAttribute('id', 'pesqFaixa');
-            container.appendChild(faixaSearch);
+    function listaConteudo(cds) {
+        var container = document.getElementById("container");
 
-            //buscar o conteudo da faixa
-            var faixas = cd.querySelectorAll('faixa');
-            //ciclo FOR para mostrar as faixas do Album
-            for (var y = 0; y < faixas.length; y++) {
-                //Saber a posição da faixa no array
-                var faixa = faixas[y];
-                //O ref esta no XML como atributo do nome da musica dentro do album
-                var ref = faixa.getAttribute('ref');
-                //criar a lista
-                var li = document.createElement('li');
+        for (var i = 0; i < cds.length; i++) {
+            var cd = cds[i];
 
-                li.textContent = ref;
-                container.appendChild(li);
-            }
+            var albumContainer = document.createElement('div');
 
+            //Nome CD
+            var titulo = cd.getAttribute('titulo');
+            var h1 = document.createElement('h1');
+            h1.textContent = titulo;
+            albumContainer.appendChild(h1);
+
+            //autoria
+            var autoria = cd.getAttribute('autoria');
+            //para buscar o ano
+            var datas = cd.querySelector('data');
+            var data = datas.getAttribute('ano');
+
+            var p1 = document.createElement('p');
+            p1.textContent = 'by: ' + autoria + ', (' + data + ')';
+            albumContainer.appendChild(p1);
+
+            //para a imagem
+            var imagens = cd.querySelector('capa');
+            var capa = imagens.getAttribute('imagBig');
+            var imagem = document.createElement("IMG");
+            imagem.setAttribute("src", "/assets/images/" + capa);
+            imagem.setAttribute("width", "135");
+            imagem.setAttribute("height", "135");
+
+            albumContainer.appendChild(imagem);
+
+            //separação
+            var frase = document.createElement('h3');
+            frase.textContent = '---------------------';
+            albumContainer.appendChild(frase);
+
+            listaFaixa(cd, albumContainer);
+
+
+
+
+            container.appendChild(albumContainer);
         }
     }
-}
+
+    //Função que desenha as faixas
+    function listaFaixa(cd, albumContainer) {
+        //adicionar o search das faixas
+        var faixaSearch = document.createElement('INPUT');
+        faixaSearch.setAttribute('type', 'search');
+        faixaSearch.setAttribute('placeholder', 'Search..');
+        faixaSearch.setAttribute('id', 'pesqFaixa');
+
+        albumContainer.appendChild(faixaSearch);
+
+        //buscar o conteudo da faixa
+        var listaFaixas = makeListaFaixas(cd, "");
+        albumContainer.appendChild(listaFaixas);
+
+        faixaSearch.addEventListener('input', function (evt) {
+            //buscar o conteudo do text box
+            var filtros = faixaSearch.value;
+            //limpar a tela
+            listaFaixas.remove();
+
+            listaFaixas = makeListaFaixas(cd, filtros);
+            albumContainer.appendChild(listaFaixas);
+
+        });
+    }
+
+    function makeListaFaixas(cd, termoPesquisa) {
+        var faixas = null;
+
+        if (termoPesquisa.length === 0) {
+            faixas = cd.querySelectorAll('faixa');
+
+        } else {
+            faixas = cd.querySelectorAll('faixa[ref*="' + termoPesquisa + '"]');
+
+        }
+        var listaFaixas = document.createElement('ol');
+
+        //ciclo FOR para mostrar as faixas do Album
+        for (var y = 0; y < faixas.length; y++) {
+            //Saber a posição da faixa no array
+            var faixa = faixas[y];
+            //O ref esta no XML como atributo do nome da musica dentro do album
+            var ref = faixa.getAttribute('ref');
+            //criar a lista
+            var li = document.createElement('li');
+
+            li.textContent = ref;
+            listaFaixas.appendChild(li);
+        }
+
+        return listaFaixas;
+    }
 
 
+});
